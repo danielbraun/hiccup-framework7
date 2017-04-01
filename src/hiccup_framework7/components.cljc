@@ -1,6 +1,18 @@
 (ns hiccup-framework7.components
   (:require [clojure.string :as string]))
 
+(defn- class-names [m]
+  (->> m
+       (filter val)
+       (map (comp #(if (vector? %)
+                     (->> %
+                          (remove nil?)
+                          (map name)
+                          (string/join "-"))
+                     (name %))
+                  key))
+       (string/join " ")))
+
 (defn view [_ & content]
   [:div.view content])
 
@@ -103,10 +115,13 @@
    [:div.page-content
     content]])
 
-(defn icon [{:keys [f7 color]}]
-  [:i.icon {:class (clojure.string/join
-                     " "
-                     [(when f7 "f7-icons")
-                      (when color (str "color-" (name color)))])}
-   (when f7 f7)])
-
+(defn icon [{:keys [f7 icon material fa ion color]}]
+  [:i {:class (class-names {:f7-icons f7
+                            :fa fa
+                            :icon true
+                            :material-icons material
+                            [:color color] color
+                            [:fa fa] fa
+                            [:ion ion] ion
+                            icon icon})}
+   (or f7 material)])
