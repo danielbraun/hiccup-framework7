@@ -13,6 +13,13 @@
                   key))
        (string/join " ")))
 
+(defn- select-icon-props [props]
+  (->> props
+       (filter (comp second (partial re-find #"^icon") name key))
+       (map (fn [x]
+              (update x 0 (comp keyword last #(string/split % #"-") name))))
+       (into {})))
+
 (defn view [_ & content]
   [:div.view content])
 
@@ -100,21 +107,6 @@
 (defn popup [{:keys [id]} & content]
   [:div.popup {:id id} content])
 
-(defn link [{:keys [close-popup open-popup href text]
-             :or {href "#"}} & content]
-  [:a.link {:href href
-            :data-popup (or close-popup open-popup)
-            :class (cond
-                     close-popup "close-popup"
-                     open-popup "open-popup")}
-   (when text [:span text])
-   content])
-
-(defn page [_ & content]
-  [:div.page
-   [:div.page-content
-    content]])
-
 (defn icon [{:keys [f7 icon material fa ion color]}]
   [:i {:class (class-names {:f7-icons f7
                             :fa fa
@@ -125,3 +117,26 @@
                             [:ion ion] ion
                             icon icon})}
    (or f7 material)])
+
+(defn link [{:keys [close-popup back? external? href open-popup text color]
+             :or {href "#"}
+             :as props} & content]
+  (let [icon-props (not-empty (select-icon-props props))]
+    [:a {:href href
+         :data-popup (or close-popup open-popup)
+         :class (class-names
+                  {:link true
+                   :icon-only (and icon-props (not text) (empty? content))
+                   :external external?
+                   :back back?
+                   [:color color] color
+                   :close-popup close-popup
+                   :open-popup open-popup})}
+     (when icon-props (icon icon-props))
+     (when text [:span text])
+     content]))
+
+(defn page [_ & content]
+  [:div.page
+   [:div.page-content
+    content]])
