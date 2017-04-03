@@ -20,13 +20,47 @@
               (update x 0 (comp keyword last #(string/split % #"-") name))))
        (into {})))
 
+(def ^:private merge-attrs
+  (partial merge-with
+           (comp (partial string/join " ")
+                 vector)))
+
 (defn view [_ & content]
   [:div.view content])
 
+(defn icon [{:keys [f7 icon material fa ion color]}]
+  [:i {:class (class-names {:f7-icons f7
+                            :fa fa
+                            :icon true
+                            :material-icons material
+                            [:color color] color
+                            [:fa fa] fa
+                            [:ion ion] ion
+                            icon icon})}
+   (or f7 material)])
+
+(defn link [{:keys [close-popup back? external? href open-popup text color attrs]
+             :as props} & content]
+  (let [icon-props (not-empty (select-icon-props props))]
+    [:a (merge-attrs {:href (or href "#")
+                      :data-popup (or close-popup open-popup)
+                      :class (class-names
+                               {:link true
+                                :icon-only (and icon-props (not text) (empty? content))
+                                :external external?
+                                :back back?
+                                [:color color] color
+                                :close-popup close-popup
+                                :open-popup open-popup})}
+                     attrs)
+     (when icon-props (icon icon-props))
+     (when text [:span text])
+     content]))
+
 (defn list [{:keys [form media-list?]} & content]
   [(if form :form :div)
-   {:class (string/join " " ["list-block"
-                             (when media-list? "media-list")])}
+   {:class (class-names {:list-block true
+                         :media-list media-list?})}
    [:ul content]])
 
 (defn list-group [& content]
@@ -78,7 +112,7 @@
 
 (defn block [{:keys [inner?]} & content]
   [:div.content-block
-   (conj (when inner?[:div.content-block-inner])
+   (conj (when inner? [:div.content-block-inner])
          content)])
 
 (defn block-title [& content]
@@ -93,48 +127,19 @@
 (defn nav-right [& content]
   [:div.right content])
 
-(defn navbar [{:keys [title back-link back-link-url]
-               :or {back-link-url "#"}} & content]
+(defn navbar [{:keys [title back-link back-link-url]} & content]
   [:div.navbar
    [:div.navbar-inner
     (when back-link
-      (nav-left [:a.back.link {:href back-link-url}
-                 [:i.icon.icon-back]
-                 [:span back-link]]))
-    (when title [:div.center title])
+      (nav-left (link {:back? true
+                       :href back-link-url
+                       :icon :icon-back
+                       :text back-link})))
+    (when title (nav-center title))
     content]])
 
 (defn popup [{:keys [id]} & content]
   [:div.popup {:id id} content])
-
-(defn icon [{:keys [f7 icon material fa ion color]}]
-  [:i {:class (class-names {:f7-icons f7
-                            :fa fa
-                            :icon true
-                            :material-icons material
-                            [:color color] color
-                            [:fa fa] fa
-                            [:ion ion] ion
-                            icon icon})}
-   (or f7 material)])
-
-(defn link [{:keys [close-popup back? external? href open-popup text color]
-             :or {href "#"}
-             :as props} & content]
-  (let [icon-props (not-empty (select-icon-props props))]
-    [:a {:href href
-         :data-popup (or close-popup open-popup)
-         :class (class-names
-                  {:link true
-                   :icon-only (and icon-props (not text) (empty? content))
-                   :external external?
-                   :back back?
-                   [:color color] color
-                   :close-popup close-popup
-                   :open-popup open-popup})}
-     (when icon-props (icon icon-props))
-     (when text [:span text])
-     content]))
 
 (defn page [_ & content]
   [:div.page
