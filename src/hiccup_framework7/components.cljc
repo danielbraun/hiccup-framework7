@@ -2,7 +2,7 @@
   (:require [clojure.string :as string])
   (:refer-clojure :exclude [list]))
 
-(defn- class-names [m]
+(defn- classes [m]
   (->> m
        (filter second)
        (map (comp #(cond->> %
@@ -31,14 +31,14 @@
   [:div.view content])
 
 (defn icon [{:keys [f7 icon material fa ion color]}]
-  [:i {:class (class-names {:f7-icons f7
-                            :fa fa
-                            :icon true
-                            :material-icons material
-                            [:color color] color
-                            [:fa fa] fa
-                            [:ion ion] ion
-                            icon icon})}
+  [:i {:class (classes {:f7-icons f7
+                        :fa fa
+                        :icon true
+                        :material-icons material
+                        [:color color] color
+                        [:fa fa] fa
+                        [:ion ion] ion
+                        icon icon})}
    (or f7 material)])
 
 (defn link [{:keys [close-popup back? external? href open-popup text color attrs]
@@ -46,7 +46,7 @@
   (let [icon-props (not-empty (select-icon-props props))]
     [:a (merge-attrs {:href (or href "#")
                       :data-popup (or close-popup open-popup)
-                      :class (class-names
+                      :class (classes
                                {:link true
                                 :icon-only (and icon-props (not text) (empty? content))
                                 :external external?
@@ -61,8 +61,8 @@
 
 (defn list [{:keys [form media-list?]} & content]
   [(if form :form :div)
-   {:class (class-names {:list-block true
-                         :media-list media-list?})}
+   {:class (classes {:list-block true
+                     :media-list media-list?})}
    [:ul content]])
 
 (defn list-group [& content]
@@ -73,7 +73,7 @@
                          media media-item? name radio? subtitle
                          text title value]} & content]
   (let [badge-el (when badge
-                   [:span {:class (class-names
+                   [:span {:class (classes
                                     {:badge true
                                      [:bg badge-color] badge-color})}
                     badge])
@@ -98,13 +98,13 @@
                          [title-el after-wrap-el]))
                   content]
         item-content-el [(if (or radio? checkbox?) :label :div)
-                         {:class (class-names {:item-content true
-                                               [:label :radio] radio?
-                                               [:label :checkbox] checkbox?})}
+                         {:class (classes {:item-content true
+                                           [:label :radio] radio?
+                                           [:label :checkbox] checkbox?})}
                          input-el media-el inner-el]
         link-el (when link [:a.item-link {:href link} item-content-el])]
-    [:li {:class (class-names {:item-divider divider?
-                               :list-group-title group-title?})}
+    [:li {:class (classes {:item-divider divider?
+                           :list-group-title group-title?})}
      (if (or divider? group-title?)
        [:span title]
        (or link-el item-content-el))]))
@@ -123,8 +123,8 @@
          [(if (#{:select :textarea} type) type :input) props content])])
 
 (defn block [{:keys [inner? inset?]} & content]
-  [:div {:class (class-names {:content-block true
-                              :inset inset?})}
+  [:div {:class (classes {:content-block true
+                          :inset inset?})}
    (if inner?
      [:div.content-block-inner content]
      content)])
@@ -161,12 +161,12 @@
     content]])
 
 (defn grid [{:keys [no-gutter?]} & content]
-  [:div {:class (class-names {:row true
-                              :no-gutter no-gutter?})}
+  [:div {:class (classes {:row true
+                          :no-gutter no-gutter?})}
    content])
 
 (defn col [{:keys [width tablet-width]} & content]
-  [:div {:class (class-names [[:col-auto (not (or width tablet-width))]
-                              [[:col width] width]
-                              [[:col tablet-width] tablet-width]])}
+  [:div {:class (classes [[:col-auto (not (or width tablet-width))]
+                          [[:col width] width]
+                          [[:col tablet-width] tablet-width]])}
    content])
