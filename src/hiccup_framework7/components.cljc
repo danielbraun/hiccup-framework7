@@ -3,14 +3,15 @@
 
 (defn- class-names [m]
   (->> m
-       (filter val)
-       (map (comp #(if (vector? %)
-                     (->> %
-                          (remove nil?)
-                          (map name)
-                          (string/join "-"))
-                     (name %))
-                  key))
+       (filter second)
+       (map (comp #(cond->> %
+                     (not (vector? %)) vector
+                     true (remove nil?)
+                     true (map (fn [x]
+                                 (try (name x)
+                                      (catch Exception e x))))
+                     true (string/join "-"))
+                  first))
        (string/join " ")))
 
 (defn- select-icon-props [props]
@@ -110,10 +111,12 @@
            nil)
          [(if (#{:select :textarea} type) type :input) props content])])
 
-(defn block [{:keys [inner?]} & content]
-  [:div.content-block
-   (conj (when inner? [:div.content-block-inner])
-         content)])
+(defn block [{:keys [inner? inset?]} & content]
+  [:div {:class (class-names {:content-block true
+                              :inset inset?})}
+   (if inner?
+     [:div.content-block-inner content]
+     content)])
 
 (defn block-title [& content]
   [:div.content-block-title content])
