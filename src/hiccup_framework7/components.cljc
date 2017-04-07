@@ -145,3 +145,14 @@
   [:div.page
    [:div.page-content
     content]])
+
+(defn grid [{:keys [no-gutter?]} & content]
+  [:div {:class (class-names {:row true
+                              :no-gutter no-gutter?})}
+   content])
+
+(defn col [{:keys [width tablet-width]} & content]
+  [:div {:class (class-names [[:col-auto (not (or width tablet-width))]
+                              [[:col width] width]
+                              [[:col tablet-width] tablet-width]])}
+   content])
