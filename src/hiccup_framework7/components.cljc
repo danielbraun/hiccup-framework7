@@ -1,5 +1,6 @@
 (ns hiccup-framework7.components
-  (:require [clojure.string :as string]))
+  (:require [clojure.string :as string])
+  (:refer-clojure :exclude [list]))
 
 (defn- class-names [m]
   (->> m
@@ -67,36 +68,46 @@
 (defn list-group [& content]
   [:ul.list-group content])
 
-(defn list-item [{:keys [after link media subtitle text title media-item?
-                         badge group-title? radio? checkbox? name value checked?
-                         disabled?]} & content]
-  [:li (if group-title?
-         [:div.list-group-title title]
-         (conj (when link [:a.item-link {:href link}])
-               [(cond radio? :label.label-radio
-                      checkbox? :label.label-checkbox
-                      :else :div)
-                {:class "item-content"}
-                (when (or radio? checkbox?)
-                  [:input {:type (cond radio? :radio
-                                       checkbox? :checkbox)
-                           :name name
-                           :value value
-                           :disabled disabled?
-                           :checked checked?}])
-                (when media [:div.item-media media])
-                [:div.item-inner
-
-                 (conj (when media-item? [:div.item-title-row])
-                       (clojure.core/list
-                         (when title [:div.item-title title])
-
-                         (when (or after badge)
-                           [:div.item-after
-                            (if badge [:span.badge badge] after)])))
-                 (when subtitle [:div.item-subtitle subtitle])
-                 (when text [:div.item-text text])
-                 content]]))])
+(defn list-item [{:keys [after badge badge-color checkbox? checked?
+                         disabled? divider? group-title? link
+                         media media-item? name radio? subtitle
+                         text title value]} & content]
+  (let [badge-el (when badge
+                   [:span {:class (class-names
+                                    {:badge true
+                                     [:bg badge-color] badge-color})}
+                    badge])
+        after-el (when after [:span after])
+        input-el (when (or radio? checkbox?)
+                   [:input {:type (cond radio? :radio checkbox? :checkbox)
+                            :name name
+                            :value value
+                            :disabled disabled?
+                            :checked checked?}])
+        input-icon-el nil
+        media-el (when media [:div.item-media media])
+        title-el (when title [:div.item-title title])
+        subtitle-el (when subtitle [:div.item-subtitle subtitle])
+        text-el (when text [:div.item-text text])
+        title-row-el (when media-item? [:div.item-title-row title-el])
+        after-wrap-el (when (or after-el badge-el)
+                        [:div.item-after after-el badge-el])
+        inner-el [:div.item-inner
+                  (seq (if media-item?
+                         [title-row-el subtitle-el text-el]
+                         [title-el after-wrap-el]))
+                  content]
+        item-content-el [(if (or radio? checkbox?) :label :div)
+                         {:class (class-names {:item-content true
+                                               [:label :radio] radio?
+                                               [:label :checkbox] checkbox?})}
+                         input-el media-el inner-el]
+        link-el (when link [:a.item-link {:href link} item-content-el])]
+    [:li {:class (class-names {:item-divider divider?
+                               :list-group-title group-title?})}
+     (if (or divider? group-title?)
+       [:span title]
+       (or link-el item-content-el))]))
 
 (defn list-label [& content]
   [:div.list-block-label content])
