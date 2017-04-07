@@ -1,14 +1,13 @@
 # hiccup-framework7
 
-A Clojure library designed to ... well, that part is up to you.
+hiccup-framework7 provides [Hiccup][1] functions for the mobile UI [Framework7][2] framework.
 
-## Usage
-
-FIXME
+[1]: https://github.com/weavejester/hiccup
+[2]: https://github.com/nolimits4web/framework7/
 
 ## License
 
-Copyright © 2017 FIXME
+Copyright © 2017 Daniel Braun
 
 Distributed under the Eclipse Public License either version 1.0 or (at
 your option) any later version.
