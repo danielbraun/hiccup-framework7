@@ -2,6 +2,8 @@
   (:require [clojure.string :as string])
   (:refer-clojure :exclude [list]))
 
+;TODO Add doc-strings to all components so that vim-fireplace shows their previews
+
 (defn- classes [m]
   (->> m
        (filter second)
@@ -59,10 +61,11 @@
      (when text [:span text])
      content]))
 
-(defn list [{:keys [form media-list?]} & content]
-  [(if form :form :div)
-   {:class (classes {:list-block true
-                     :media-list media-list?})}
+(defn list [{:keys [form? media-list? attrs]} & content]
+  [(if form? :form :div)
+   (merge-attrs {:class (classes {:list-block true
+                                  :media-list media-list?})}
+                attrs)
    [:ul content]])
 
 (defn list-group [& content]
