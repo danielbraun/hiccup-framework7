@@ -2,6 +2,17 @@
   (:require [clojure.string :as string])
   (:refer-clojure :exclude [list]))
 
+(defn- wrap-component [f]
+  (fn [& args]
+    (if (map? (first args))
+      (f (first args) (rest args))
+      (f {} args))))
+
+(defmacro defcomponent
+  [name & fdecl]
+  `(do (defn ~name ~@fdecl)
+      (alter-var-root (var ~name) wrap-component)))
+
 ;TODO Add doc-strings to all components so that vim-fireplace shows their previews
 
 (defn- classes [m]
@@ -29,10 +40,10 @@
            (comp (partial string/join " ")
                  vector)))
 
-(defn view [_ & content]
+(defcomponent view [_ content]
   [:div.view content])
 
-(defn icon [{:keys [f7 icon material fa ion color]}]
+(defcomponent icon [{:keys [f7 icon material fa ion color]} _]
   [:i {:class (classes {:f7-icons f7
                         :fa fa
                         :icon true
@@ -43,8 +54,8 @@
                         icon icon})}
    (or f7 material)])
 
-(defn link [{:keys [close-popup back? external? href open-popup text color attrs]
-             :as props} & content]
+(defcomponent link [{:keys [close-popup back? external? href open-popup text color attrs]
+             :as props} content]
   (let [icon-props (not-empty (select-icon-props props))]
     [:a (merge-attrs {:href (or href "#")
                       :data-popup (or close-popup open-popup)
@@ -61,20 +72,20 @@
      (when text [:span text])
      content]))
 
-(defn list [{:keys [form? media-list? attrs]} & content]
+(defcomponent list [{:keys [form? media-list? attrs]} content]
   [(if form? :form :div)
    (merge-attrs {:class (classes {:list-block true
                                   :media-list media-list?})}
                 attrs)
    [:ul content]])
 
-(defn list-group [& content]
+(defcomponent list-group [_ content]
   [:ul.list-group content])
 
-(defn list-item [{:keys [after badge badge-color checkbox? checked?
+(defcomponent list-item [{:keys [after badge badge-color checkbox? checked?
                          disabled? divider? group-title? link
                          media media-item? name radio? subtitle
-                         text title value]} & content]
+                         text title value]} content]
   (let [badge-el (when badge
                    [:span {:class (classes
                                     {:badge true
@@ -112,39 +123,39 @@
        [:span title]
        (or link-el item-content-el))]))
 
-(defn list-label [& content]
+(defcomponent list-label [_ content]
   [:div.list-block-label content])
 
-(defn label [_ & content]
+(defcomponent label [_ content]
   [:div.item-title.label content])
 
-(defn input [{:keys [type] :as props} & content]
+(defcomponent input [{:keys [type] :as props} content]
   [:div.item-input
    (conj (case type
            :range [:div.range-slider]
            nil)
          [(if (#{:select :textarea} type) type :input) props content])])
 
-(defn block [{:keys [inner? inset?]} & content]
+(defcomponent block [{:keys [inner? inset?]} content]
   [:div {:class (classes {:content-block true
                           :inset inset?})}
    (if inner?
      [:div.content-block-inner content]
      content)])
 
-(defn block-title [& content]
+(defcomponent block-title [_ content]
   [:div.content-block-title content])
 
-(defn nav-left [& content]
+(defcomponent nav-left [_ content]
   [:div.left content])
 
-(defn nav-center [& content]
+(defcomponent nav-center [_ content]
   [:div.center content])
 
-(defn nav-right [& content]
+(defcomponent nav-right [_ content]
   [:div.right content])
 
-(defn navbar [{:keys [title back-link back-link-url]} & content]
+(defcomponent navbar [{:keys [title back-link back-link-url]} content]
   [:div.navbar
    [:div.navbar-inner
     (when back-link
@@ -155,20 +166,20 @@
     (when title (nav-center title))
     content]])
 
-(defn popup [{:keys [id]} & content]
+(defcomponent popup [{:keys [id]} content]
   [:div.popup {:id id} content])
 
-(defn page [_ & content]
+(defcomponent page [_ content]
   [:div.page
    [:div.page-content
     content]])
 
-(defn grid [{:keys [no-gutter?]} & content]
+(defcomponent grid [{:keys [no-gutter?]} content]
   [:div {:class (classes {:row true
                           :no-gutter no-gutter?})}
    content])
 
-(defn col [{:keys [width tablet-width]} & content]
+(defcomponent col [{:keys [width tablet-width]} content]
   [:div {:class (classes [[:col-auto (not (or width tablet-width))]
                           [[:col width] width]
                           [[:col tablet-width] tablet-width]])}
