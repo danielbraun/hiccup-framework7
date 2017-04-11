@@ -1,17 +1,7 @@
 (ns hiccup-framework7.components
-  (:require [clojure.string :as string])
+  (:require [clojure.string :as string]
+            [hiccup-framework7.def :refer [defcomponent]])
   (:refer-clojure :exclude [list]))
-
-(defn- wrap-component [f]
-  (fn [& args]
-    (if (map? (first args))
-      (f (first args) (rest args))
-      (f {} args))))
-
-(defmacro defcomponent
-  [name & fdecl]
-  `(do (defn ~name ~@fdecl)
-      (alter-var-root (var ~name) wrap-component)))
 
 ;TODO Add doc-strings to all components so that vim-fireplace shows their previews
 
