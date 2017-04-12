@@ -72,9 +72,10 @@
         title-el (when title [:div.item-title title])
         subtitle-el (when subtitle [:div.item-subtitle subtitle])
         text-el (when text [:div.item-text text])
-        title-row-el (when media-item? [:div.item-title-row title-el])
         after-wrap-el (when (or after-el badge-el)
                         [:div.item-after after-el badge-el])
+        title-row-el (when media-item?
+                       [:div.item-title-row title-el after-wrap-el])
         inner-el [:div.item-inner
                   (seq (if media-item?
                          [title-row-el subtitle-el text-el]
