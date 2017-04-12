@@ -19,19 +19,22 @@
            (comp (partial string/join " ")
                  vector)))
 
+(defn add-attr-map [hiccup]
+  (let [[x & xs] hiccup]
+    (if (map? (first xs))
+      hiccup
+      [x {} xs])))
+
 (defn wrap-component [f]
   (fn [& args]
-    (->>
-      (if (map? (first args))
-        (let [props (first args)
-              [el & content :as result] (f props (rest args))]
-          (-> (if (map? (first content))
-                result
-                [el {} content])
-              (update 1 merge-attrs (:attrs props))))
-        (f {} args))
-      (clojure.walk/postwalk
-        #(cond-> % (associative? (:class %)) (update :class classes))))))
+    (let [first-arg (first args)
+          {:keys [attrs] :as props} (if (map? first-arg) first-arg {})
+          result (f props (if (map? first-arg) (rest args) args))]
+      (-> result
+          add-attr-map
+          ((partial clojure.walk/postwalk
+                    #(cond-> % (associative? (:class %)) (update :class classes))))
+          (update 1 merge-attrs attrs)))))
 
 (defmacro defcomponent
   [name & fdecl]
