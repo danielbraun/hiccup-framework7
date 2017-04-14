@@ -54,8 +54,8 @@
 
 (defcomponent list-item [{:keys [after badge badge-color checkbox? checked?
                                  disabled? divider? group-title? link
-                                 media media-item? name radio? subtitle
-                                 text title value]} content]
+                                 media media-item? name radio? smart-select
+                                 subtitle text title value]} content]
   (let [badge-el (when badge
                    [:span {:class {:badge true
                                    [:bg badge-color] badge-color}}
@@ -86,7 +86,11 @@
                                   [:label :radio] radio?
                                   [:label :checkbox] checkbox?}}
                          input-el media-el inner-el]
-        link-el (when link [:a.item-link {:href link} item-content-el])]
+        link-el (when (or smart-select link)
+                  [:a {:href (or link "#")
+                       :class {:item-link true
+                               :smart-select smart-select}}
+                   item-content-el])]
     [:li {:class {:item-divider divider?
                   :list-group-title group-title?}}
      (if (or divider? group-title?)
