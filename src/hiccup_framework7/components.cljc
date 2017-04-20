@@ -16,7 +16,7 @@
 (defcomponent view [_ content]
   [:div.view content])
 
-(defcomponent icon [{:keys [f7 icon material fa ion color]} _]
+(defcomponent icon [{:keys [f7 icon material fa ion color size]} _]
   [:i {:class {:f7-icons f7
                :fa fa
                :icon true
@@ -24,7 +24,8 @@
                [:color color] color
                [:fa fa] fa
                [:ion ion] ion
-               icon icon}}
+               icon icon}
+       :style (when size (str "font-size:" size "px"))}
    (or f7 material)])
 
 (defcomponent link [{:keys [close-popup back? external? href open-popup text color ]
@@ -158,3 +159,22 @@
                  [[:col width] width]
                  [[:col tablet-width] tablet-width]]}
    content])
+
+(defcomponent button [{:keys [round? big? raised? fill?]} content]
+  [:button {:class {:button true
+                    :button-fill fill?
+                    :button-round round?
+                    :button-raised raised?
+                    :button-big big?}} content])
+
+(defcomponent search-bar [{:keys [form? placeholder cancel-link
+                                  clear-button? init? params]
+                           :or {form? true
+                                clear-button? true}}
+                          content]
+  [(if form? :form :div)
+   {:class {:searchbar true}}
+   [:div {:class {:searchbar-input true}}
+    [:input {:type :search, :placeholder placeholder}]
+    (when clear-button? [:a.searchbar-clear {:href "#"}])]
+   (when cancel-link [:div.searchbar-cancel cancel-link])])
