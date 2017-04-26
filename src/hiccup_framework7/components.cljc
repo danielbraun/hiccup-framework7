@@ -144,10 +144,22 @@
 (defcomponent popup [{:keys [id]} content]
   [:div.popup {:id id} content])
 
-(defcomponent page [_ content]
-  [:div.page
-   [:div.page-content
-    content]])
+(defn page [{:keys [layout navbar toolbar fixed id]
+             :or {layout :fixed}} & content]
+  (case layout
+    :static [:div.pages
+             [:div.page {:data-page id}
+              fixed
+              [:div.page-content navbar content toolbar]]]
+    :fixed [:div.pages.navbar-fixed.toolbar-fixed
+            [:div.page {:data-page id}
+             navbar fixed [:div.page-content content] toolbar]]
+    :through (clojure.core/list
+               navbar
+               [:div.pages.navbar-through.toolbar-through
+                [:div.page {:data-page id}
+                 fixed [:div.page-content content]]]
+               toolbar)))
 
 (defcomponent grid [{:keys [no-gutter?]} content]
   [:div {:class {:row true
