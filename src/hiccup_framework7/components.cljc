@@ -144,22 +144,24 @@
 (defcomponent popup [{:keys [id]} content]
   [:div.popup {:id id} content])
 
-(defn page [{:keys [layout navbar toolbar fixed id]
+(defn page [{:keys [layout navbar toolbar fixed id with-subnavbar?]
              :or {layout :fixed}} & content]
-  (case layout
-    :static [:div.pages
-             [:div.page {:data-page id}
-              fixed
-              [:div.page-content navbar content toolbar]]]
-    :fixed [:div.pages.navbar-fixed.toolbar-fixed
-            [:div.page {:data-page id}
-             navbar fixed [:div.page-content content] toolbar]]
-    :through (clojure.core/list
-               navbar
-               [:div.pages.navbar-through.toolbar-through
-                [:div.page {:data-page id}
-                 fixed [:div.page-content content]]]
-               toolbar)))
+  (let [page-attrs {:data-page id
+                    :class (when with-subnavbar? "with-subnavbar")}]
+    (case layout
+      :static [:div.pages
+               [:div.page page-attrs
+                fixed
+                [:div.page-content navbar content toolbar]]]
+      :fixed [:div.pages.navbar-fixed.toolbar-fixed
+              [:div.page page-attrs
+               navbar fixed [:div.page-content content] toolbar]]
+      :through (clojure.core/list
+                 navbar
+                 [:div.pages.navbar-through.toolbar-through
+                  [:div.page page-attrs
+                   fixed [:div.page-content content]]]
+                 toolbar))))
 
 (defcomponent grid [{:keys [no-gutter?]} content]
   [:div {:class {:row true
@@ -190,3 +192,22 @@
     [:input {:type :search, :placeholder placeholder}]
     (when clear-button? [:a.searchbar-clear {:href "#"}])]
    (when cancel-link [:div.searchbar-cancel cancel-link])])
+
+(defcomponent tabs [{:keys [animated? swipeable?]} content]
+  (let [tabs-el [:div.tabs content]]
+    (if animated?
+      [:div {:class {:tabs-animated-wrap animated?
+                     :tabs-swipeable-wrap swipeable?}} tabs-el]
+      tabs-el)))
+
+(defcomponent tab [{:keys [active? id]} content]
+  [:div {:id id
+         :class {:tab true
+                 :active active?}}
+   content])
+
+(defcomponent buttons [_ content]
+  [:div {:class {:buttons-row true}} content])
+
+(defcomponent subnavbar [{:keys []} content]
+  [:div.subnavbar content])
