@@ -1,7 +1,7 @@
 (ns hiccup-framework7.def
   (:require [clojure.string :as string]))
 
-(defn- classes [m]
+(defn classes [m]
   (->> m
        (filter second)
        (map (comp #(cond->> %

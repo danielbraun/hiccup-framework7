@@ -1,6 +1,7 @@
 (ns hiccup-framework7.components
   (:require [clojure.string :as string]
-            [hiccup-framework7.def :refer [defcomponent]])
+            [hiccup.def :refer [defelem]]
+            [hiccup-framework7.def :refer [defcomponent classes]])
   (:refer-clojure :exclude [list]))
 
 ;TODO Add doc-strings to all components so that vim-fireplace shows their previews
@@ -12,9 +13,8 @@
               (update x 0 (comp keyword last #(string/split % #"-") name))))
        (into {})))
 
-
-(defcomponent view [_ content]
-  [:div.view content])
+(defelem view [& content]
+  (into [:div.view] content))
 
 (defcomponent icon [{:keys [f7 icon material fa ion color size]} _]
   [:i {:class {:f7-icons f7
@@ -130,7 +130,9 @@
 (defcomponent nav-right [_ content]
   [:div.right content])
 
-(defcomponent navbar [{:keys [title back-link back-link-url]} content]
+(defn navbar [{:keys [title back-link back-link-url sliding?]
+               :or {back-link "Back"}} & content]
+  ;TODO: sliding
   [:div.navbar
    [:div.navbar-inner
     (when back-link
@@ -144,7 +146,7 @@
 (defcomponent popup [{:keys [id]} content]
   [:div.popup {:id id} content])
 
-(defn page [{:keys [layout navbar toolbar fixed id with-subnavbar?]
+#_(defn page [{:keys [layout navbar toolbar fixed id with-subnavbar?]
              :or {layout :fixed}} & content]
   (let [page-attrs {:data-page id
                     :class (when with-subnavbar? "with-subnavbar")}]
@@ -211,3 +213,41 @@
 
 (defcomponent subnavbar [{:keys []} content]
   [:div.subnavbar content])
+
+(defelem toolbar [& content]
+  [:div.toolbar
+   (into [:div.toolbar-inner] content)])
+
+(defelem tabbar-label [& content]
+  (into [:span.tabbar-label] content))
+
+(defelem swiper [& content]
+  [:div.swiper-container
+   (into [:div.swiper-wrapper] content)
+   [:div.swiper-pagination]])
+
+(defelem swiper-slide [& content]
+  (into [:div.swiper-slide] content))
+
+(defelem pages [& content]
+  (into [:div.pages] content))
+
+(defelem page [& content]
+  [:div.page
+   (into [:div.page-content] content)])
+
+(defn search-bar [{:keys [cancel-link init?]
+                   :or {cancel-link "Cancel"
+                        init? true}
+                   :as attrs}]
+  [:div.searchbar
+   {:class (classes {:searchbar-init init?})}
+   [:div.searchbar-input
+    [:input (merge {:type :search
+                    :placeholder "Search"
+                    :name :q} attrs)]
+    [:a.searchbar-clear {:href "#"}]]
+   [:a.searchbar-cancel {:href "#"} cancel-link]])
+
+(defelem views [& content]
+  (into [:div.views] content))
