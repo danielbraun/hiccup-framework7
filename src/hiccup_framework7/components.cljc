@@ -16,7 +16,7 @@
 (defelem view [& content]
   (into [:div.view] content))
 
-(defcomponent icon [{:keys [f7 icon material fa ion color size]} _]
+(defcomponent icon [{:keys [f7 icon material fa ion color size]} content]
   [:i {:class {:f7-icons f7
                :fa fa
                :icon true
@@ -26,7 +26,8 @@
                [:ion ion] ion
                icon icon}
        :style (when size (str "font-size:" size "px"))}
-   (or f7 material)])
+   (or f7 material)
+   content])
 
 (defcomponent link [{:keys [close-popup back? external? href open-popup text color ]
                      :as props} content]
