@@ -26,7 +26,7 @@
                [:ion ion] ion
                icon icon}
        :style (when size (str "font-size:" size "px"))}
-   (or f7 material)
+   (name (or f7 material))
    content])
 
 (defcomponent link [{:keys [close-popup back? external? href open-popup text color ]
